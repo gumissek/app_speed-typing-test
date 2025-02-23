@@ -16,27 +16,34 @@ words = [
     "neque", "sit", "amet", "sapien", "volutpat", "non", "mollis", "mauris", "euismod", "Curabitur",
     "arcu", "nisi", "cursus", "vel", "tristique", "a", "maximus", "a", "mauris"
 ]
-# words_60 = []
-# for i in range(60):
-#     words_60.append(random.choice(words))
-
 TIMER_COUNTER = 60
-TIMER=None
+TIMER = None
 SCORE = 0
+FONT = ('Arial', 35, 'bold')
+SCORE_BOARD = None
 
-def reset_timer():
-    if TIMER!=None:
-        window.after_cancel(TIMER)
 
 def timer(time):
     global TIMER
+    global SCORE_BOARD
     if time > 0:
         canva.itemconfig(time_text, text=time)
-        TIMER=window.after(100, timer, time - 1)
+        TIMER = window.after(100, timer, time - 1)
     else:
+        canva.itemconfig(time_text, text=time)
         window.after_cancel(TIMER)
-        canva.create_text(250,250,text=f'YOUR SCORE IS: {SCORE}\n'
-                                       f'Words per minute = {SCORE/(TIMER_COUNTER/60)}')
+        canva.config(background='lightgreen')
+        SCORE_BOARD = canva.create_text(250, 230, text=f'YOUR SCORE IS: {SCORE}\n'
+                                                       f'Words per minute = {SCORE / (TIMER_COUNTER / 60)}',
+                                        fill='black', font=FONT)
+        entry.insert(0, 'Retype word:')
+
+
+def reset_timer():
+    if TIMER != None:
+        window.after_cancel(TIMER)
+    if SCORE_BOARD != None:
+        canva.delete(SCORE_BOARD)
 
 
 def get_new_word():
@@ -51,11 +58,13 @@ def update_score():
 def begin():
     global SCORE
     SCORE = 0
-    canva.config(background='green')
+    canva.config(background='lightyellow')
     reset_timer()
     timer(TIMER_COUNTER)
     get_new_word()
     update_score()
+    entry.delete(0, 'end')
+    entry.focus()
 
 
 def check(event=None):
@@ -63,7 +72,6 @@ def check(event=None):
     random_word = canva.itemcget(statement, 'text')
     if entry.get() == random_word:
         SCORE += 1
-        words.remove(random_word)
         get_new_word()
     update_score()
     entry.delete(0, 'end')
@@ -71,19 +79,20 @@ def check(event=None):
 
 window = Tk()
 window.title('Speed typing test')
-window.config(padx=20, pady=20)
+window.config(padx=20, pady=20, background='gray')
 
-canva = Canvas(width=500, height=300, background='blue')
+canva = Canvas(width=500, height=300, background='lightyellow')
 canva.config(highlightthickness=0)
-time_label = canva.create_text(250, 50, text='Time:')
-time_text = canva.create_text(280, 50, text=f'{TIMER_COUNTER}')
-statement = canva.create_text(250, 80, text='Statement:')
-score_label = canva.create_text(250, 100, text=f'Score:{SCORE}')
+time_label = canva.create_text(220, 50, text='Time:', font=FONT, fill='black')
+time_text = canva.create_text(300, 50, text=f'{TIMER_COUNTER}', font=FONT, fill='black')
+statement = canva.create_text(250, 170, text='WORD:', font=FONT, fill='black')
+score_label = canva.create_text(250, 100, text=f'Score:{SCORE}', font=FONT, fill='black')
 canva.grid(row=0, column=0, columnspan=3)
 
-button = Button(text='START', command=begin)
+button = Button(text='START', command=begin, background='white')
 button.grid(row=1, column=1)
-entry = Entry()
+entry = Entry(bg='white', fg='black')
+entry.insert(0, 'Retype word:')
 entry.grid(row=1, column=2)
 
 window.bind('<Return>', check)
