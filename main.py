@@ -28,7 +28,7 @@ def timer(time):
     global SCORE_BOARD
     if time > 0:
         canva.itemconfig(time_text, text=time)
-        TIMER = window.after(100, timer, time - 1)
+        TIMER = window.after(1000, timer, time - 1)
     else:
         canva.itemconfig(time_text, text=time)
         window.after_cancel(TIMER)
